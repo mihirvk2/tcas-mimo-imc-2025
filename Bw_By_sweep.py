@@ -179,17 +179,6 @@ def plot_Bw_By_sweep(channel, modulation):
     evm_lmmse_fx = np.load(f'Outputs/evm_fx_By_Bw_{channel}_{modulation}.npy')
     evm_lmmse_fx_margin_dB = np.load(f'Outputs/evm_fx_margin_dB_By_Bw_{channel}_{modulation}.npy')
     evm_lmmse_fp_margin_dB = np.load(f'Outputs/evm_fp_margin_dB_By_Bw_{channel}_{modulation}.npy')
-
-    for i in range(evm_lmmse_fx_margin_dB.shape[0]):
-        for j in range(evm_lmmse_fx_margin_dB.shape[1]):
-            if(evm_lmmse_fx_margin_dB[i,j] > evm_lmmse_fp_margin_dB):
-                evm_lmmse_fx_margin_dB[i,j] = evm_lmmse_fp_margin_dB
-            if(j>0):
-                if(evm_lmmse_fx_margin_dB[i,j]< evm_lmmse_fx_margin_dB[i,j-1]):
-                    evm_lmmse_fx_margin_dB[i,j] = evm_lmmse_fx_margin_dB[i,j-1]
-            if(i>0):
-                if(evm_lmmse_fx_margin_dB[i,j]<evm_lmmse_fx_margin_dB[i-1,j]):
-                    evm_lmmse_fx_margin_dB[i,j] = evm_lmmse_fx_margin_dB[i-1,j]
     
     # Plotting the heatmap
     # Annotate each square with its value

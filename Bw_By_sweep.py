@@ -169,6 +169,54 @@ def Bw_By_sweep(channel, modulation, nsamples):
     plt.grid(False)
     plt.savefig(f'Figures/evm_fx_margin_dB_By_Bw_{channel}_{modulation}.png', format='png', bbox_inches='tight')
     # plt.show()
+    
+    M = 1
+    if(modulation=='QPSK'):
+        M = 2
+    elif(modulation == '16QAM'):
+        M = 4
+    elif(modulation == '64QAM'):
+        M = 8
+
+    gamma = 500
+    E_mac = 12.24
+    E_read = 124.25
+    E_write = 135
+    N, K = tuple(map(int, re.findall(r'\d+', channel)[-2:]))
+    E_bpsk_1b = 4*(E_mac+E_read)*N + 2*E_write*N/(gamma)
+
+    normalized_ecmvm = np.zeros((nbits_max-nbits_min,nbits_max-nbits_min))
+    for i in range(nbits_max-nbits_min):
+        for j in range(nbits_max-nbits_min):
+            normalized_ecmvm[i,j] = (4*(E_mac+E_read)*N*(nbits_min + i)*(nbits_min + j)/M + 2*E_write*N*(nbits_min + j)/(M*gamma))/E_bpsk_1b
+    
+    # Plotting the heatmap
+    plt.figure(figsize=(8, 6))
+    heatmap = plt.imshow(normalized_ecmvm, origin='lower', extent=[nbits_min-0.5, nbits_max-0.5, nbits_min-0.5, nbits_max-0.5], 
+                        cmap='viridis', aspect='auto', norm=Normalize(vmin=0, vmax=20))
+    
+    # Annotate each square with its value
+    nrows, ncols = normalized_ecmvm.shape
+    for i in range(nrows):
+        for j in range(ncols):
+            plt.text(j + nbits_min, i + nbits_min, f"{normalized_ecmvm[i, j]:.2f}", 
+                    ha='center', va='center', color="white" if heatmap.norm(normalized_ecmvm[i, j]) < 0.5 else "black", 
+                    fontsize=14)
+    
+    # Add colorbar with label
+    colorbar = plt.colorbar(heatmap)
+    colorbar.ax.set_ylabel(r"$E_\mathrm{b}$ (normalized)", fontsize=18)
+    colorbar.ax.tick_params(labelsize=14)
+    # Adjusting ticks to be centered on squares
+    nbits_range = np.arange(nbits_min, nbits_max)  # Assuming integer values for ticks
+    plt.xticks(ticks=nbits_range, labels=nbits_range, fontsize=16)  # Set x-axis ticks and font size
+    plt.yticks(ticks=nbits_range, labels=nbits_range, fontsize=16)  # Set y-axis ticks and font size
+    # plt.title(f'{modulation}')
+    plt.xlabel("$B_y$ (bits)", fontsize = 18)
+    plt.ylabel("$B_w$ (bits)", fontsize = 18)
+    plt.grid(False)
+    plt.savefig(f'Figures/Eb_By_Bw_{modulation}.png', format='png', bbox_inches='tight')
+    # plt.show()
 
 def plot_Bw_By_sweep(channel, modulation):
 

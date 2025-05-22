@@ -170,6 +170,46 @@ def Bw_By_sweep(channel, modulation, nsamples):
     plt.savefig(f'Figures/evm_fx_margin_dB_By_Bw_{channel}_{modulation}.png', format='png', bbox_inches='tight')
     # plt.show()
     
+
+def plot_Bw_By_sweep(channel, modulation):
+
+    nbits_min = 4
+    nbits_max = 10
+    
+    evm_lmmse_fp = np.load(f'Outputs/evm_By_Bw_{channel}_{modulation}.npy')
+    evm_lmmse_fx = np.load(f'Outputs/evm_fx_By_Bw_{channel}_{modulation}.npy')
+    evm_lmmse_fx_margin_dB = np.load(f'Outputs/evm_fx_margin_dB_By_Bw_{channel}_{modulation}.npy')
+    evm_lmmse_fp_margin_dB = np.load(f'Outputs/evm_fp_margin_dB_By_Bw_{channel}_{modulation}.npy')
+    
+    # Plotting the heatmap
+    # Annotate each square with its value
+    plt.figure(figsize=(8, 6))
+    heatmap = plt.imshow(evm_lmmse_fx_margin_dB, origin='lower', extent=[nbits_min-0.5, nbits_max-0.5, nbits_min-0.5, nbits_max-0.5], 
+                        cmap='viridis', aspect='auto', norm=Normalize(vmin=0, vmax=3))
+    
+    nrows, ncols = evm_lmmse_fx_margin_dB.shape
+    for i in range(nrows):
+        for j in range(ncols):
+            plt.text(j + nbits_min, i + nbits_min, f"{evm_lmmse_fx_margin_dB[i, j]:.2f}", 
+                    ha='center', va='center', color="white" if heatmap.norm(evm_lmmse_fx_margin_dB[i, j]) < 0.5 else "black", 
+                    fontsize=14)
+    
+    # Add colorbar with label
+    colorbar = plt.colorbar(heatmap)
+    # colorbar.ax.set_ylabel("EVM degradation (dB)", fontsize=18)
+    colorbar.ax.set_ylabel("EVM margin (dB)", fontsize=18)
+    colorbar.ax.tick_params(labelsize=14)
+    # Adjusting ticks to be centered on squares
+    nbits_range = np.arange(nbits_min, nbits_max)  # Assuming integer values for ticks
+    plt.xticks(ticks=nbits_range, labels=nbits_range, fontsize=16)  # Set x-axis ticks and font size
+    plt.yticks(ticks=nbits_range, labels=nbits_range, fontsize=16)  # Set y-axis ticks and font size
+    plt.title(f'EVM margin for digital FP baseline = {evm_lmmse_fp_margin_dB:.2f} dB', fontsize = 13)
+    plt.xlabel("$B_y$ (bits)", fontsize = 18)
+    plt.ylabel("$B_w$ (bits)", fontsize = 18)
+    plt.grid(False)
+    plt.savefig(f'Figures/evm_fx_margin_dB_By_Bw_{channel}_{modulation}.png', format='png', bbox_inches='tight')
+    # plt.show()
+
     M = 1
     if(modulation=='QPSK'):
         M = 2
@@ -216,45 +256,6 @@ def Bw_By_sweep(channel, modulation, nsamples):
     plt.ylabel("$B_w$ (bits)", fontsize = 18)
     plt.grid(False)
     plt.savefig(f'Figures/Eb_By_Bw_{modulation}.png', format='png', bbox_inches='tight')
-    # plt.show()
-
-def plot_Bw_By_sweep(channel, modulation):
-
-    nbits_min = 4
-    nbits_max = 10
-    
-    evm_lmmse_fp = np.load(f'Outputs/evm_By_Bw_{channel}_{modulation}.npy')
-    evm_lmmse_fx = np.load(f'Outputs/evm_fx_By_Bw_{channel}_{modulation}.npy')
-    evm_lmmse_fx_margin_dB = np.load(f'Outputs/evm_fx_margin_dB_By_Bw_{channel}_{modulation}.npy')
-    evm_lmmse_fp_margin_dB = np.load(f'Outputs/evm_fp_margin_dB_By_Bw_{channel}_{modulation}.npy')
-    
-    # Plotting the heatmap
-    # Annotate each square with its value
-    plt.figure(figsize=(8, 6))
-    heatmap = plt.imshow(evm_lmmse_fx_margin_dB, origin='lower', extent=[nbits_min-0.5, nbits_max-0.5, nbits_min-0.5, nbits_max-0.5], 
-                        cmap='viridis', aspect='auto', norm=Normalize(vmin=0, vmax=3))
-    
-    nrows, ncols = evm_lmmse_fx_margin_dB.shape
-    for i in range(nrows):
-        for j in range(ncols):
-            plt.text(j + nbits_min, i + nbits_min, f"{evm_lmmse_fx_margin_dB[i, j]:.2f}", 
-                    ha='center', va='center', color="white" if heatmap.norm(evm_lmmse_fx_margin_dB[i, j]) < 0.5 else "black", 
-                    fontsize=14)
-    
-    # Add colorbar with label
-    colorbar = plt.colorbar(heatmap)
-    # colorbar.ax.set_ylabel("EVM degradation (dB)", fontsize=18)
-    colorbar.ax.set_ylabel("EVM margin (dB)", fontsize=18)
-    colorbar.ax.tick_params(labelsize=14)
-    # Adjusting ticks to be centered on squares
-    nbits_range = np.arange(nbits_min, nbits_max)  # Assuming integer values for ticks
-    plt.xticks(ticks=nbits_range, labels=nbits_range, fontsize=16)  # Set x-axis ticks and font size
-    plt.yticks(ticks=nbits_range, labels=nbits_range, fontsize=16)  # Set y-axis ticks and font size
-    plt.title(f'EVM margin for digital FP baseline = {evm_lmmse_fp_margin_dB:.2f} dB', fontsize = 13)
-    plt.xlabel("$B_y$ (bits)", fontsize = 18)
-    plt.ylabel("$B_w$ (bits)", fontsize = 18)
-    plt.grid(False)
-    plt.savefig(f'Figures/evm_fx_margin_dB_By_Bw_{channel}_{modulation}.png', format='png', bbox_inches='tight')
     # plt.show()
 
 if __name__ == '__main__':
